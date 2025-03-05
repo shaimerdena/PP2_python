@@ -1,0 +1,26 @@
+{
+    "students": [
+      {
+        "id": 1,
+        "name": "Ayau",
+        "age": 18,
+        "subjects": ["Math", "Programming", "English"],
+        "grades": {
+          "Math": 95,
+          "Programming": 98,
+          "English": 89
+        }
+      },
+      {
+        "id": 2,
+        "name": "Арман",
+        "age": 21,
+        "subjects": ["Physics", "Programming", "History"],
+        "grades": {
+          "Physics": 85,
+          "Programming": 92,
+          "History": 78
+        }
+      }
+    ]
+  }
