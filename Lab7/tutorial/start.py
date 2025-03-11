@@ -3,11 +3,12 @@ import pygame
 pygame.init()
 screen = pygame.display.set_mode((600, 500))
 done = False
+is_blue = True
 
 while not done:
-    is_blue = True
+    screen.fill((0,0,0))
     if is_blue: color = (0, 128, 255)
-    else: color = (255, 100, 0)
+    else: color = (255, 0, 0)
     pygame.draw.rect(screen, color, pygame.Rect(30, 30, 60, 60))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
