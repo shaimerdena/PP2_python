@@ -1,17 +1,17 @@
 import pygame, sys
 
+# Main function to run the painter program
 def main():
-
     pygame.init()
-    screen = pygame.display.set_mode((800,600))
-    caption = pygame.display.set_caption(('Painter'))
+    screen = pygame.display.set_mode((800,600))  # Set screen size
+    caption = pygame.display.set_caption(('Painter'))  # Set window title
     clock = pygame.time.Clock()
 
-    radius = 15
-    x, y = 0, 0
+    radius = 15  # Brush size
+    x, y = 0, 0  # Mouse position variables
     points = []
 
-    # Predefined some colors
+    # Predefined colors
     ORANGE = (100,65,0)
     BLUE  = (0, 0, 255)
     RED   = (255, 0, 0)
@@ -22,47 +22,51 @@ def main():
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
 
-    #surfase
+    # Create a drawing surface
     canvas = pygame.Surface((800, 600))
-    canvas.fill(WHITE)
-    mode = BLUE
+    canvas.fill(WHITE)  # Set canvas background color
+    mode = BLUE  # Default drawing color
 
-    #color palette
+    # Define color palette
     list_of_colors = [BLACK, RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK]
     color_rects = [(30 + i * 30, 20, 20, 20) for i in range(len(list_of_colors))]
 
-    #eraser
+    # Load eraser image
     eraser = pygame.image.load(r'C:\Users\Shaim\OneDrive\Рабочий стол\Python\Lab8\paint_files\eraser.png')
     eraser_rect = eraser.get_rect(center = (265,19))
 
-    #starting position for rectangle and circle
+    # Variables for drawing shapes
     start_pos = (0,0)
     rect_position = pygame.Rect((0,0,0,0))
+    circle_center = (0,0)
+    circle_radius = 0
 
-    drawing = False
+    drawing = False  # Flag for freehand drawing
+    drawing_rect = False  # Flag for rectangle drawing
+    drawing_circle = False  # Flag for circle drawing
 
-    done = False
+    while True:
+        screen.blit(canvas, (0,0))  # Draw canvas onto the screen
 
-    drawing_rect = False
-
-    while not done:
-        screen.blit(canvas, (0,0))
-
-        pygame.draw.rect(screen, WHITE, pygame.Rect(0,0,800,60))
-        pygame.draw.line(screen, BLACK, (0, 60), (800, 60), 1)
-        colors(screen, list_of_colors)
-        screen.blit(eraser, (265,19))
-
-        rect_rect = pygame.Rect(305, 23, 17, 17)
-        pygame.draw.rect(screen, BLACK, rect_rect, 3)
+        # Draw UI elements
+        pygame.draw.rect(screen, WHITE, pygame.Rect(0,0,800,60))  # White background for the toolbar
+        pygame.draw.line(screen, BLACK, (0, 60), (800, 60), 1)  # Separator line
+        colors(screen, list_of_colors)  # Draw color selection circles
+        screen.blit(eraser, (265,19))  # Display eraser icon
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                done = True
+                pygame.quit()
+                sys.exit()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
+                elif event.key == pygame.K_c:  # Press 'C' to start drawing a circle
+                    drawing_circle = True
+                elif event.key == pygame.K_r:  # Press 'R' to start drawing a rectangle
+                    drawing_rect = True
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
@@ -72,45 +76,50 @@ def main():
                 # Check if a color button was clicked
                 for i, rect in enumerate(color_rects):
                     if pygame.Rect(rect).collidepoint(x, y):
-                        mode = list_of_colors[i]  # Change the drawing color
-                        color_selected = True  # Prevent drawing from activating
+                        mode = list_of_colors[i]  # Change drawing color
+                        color_selected = True  # Prevent accidental drawing
                         break
 
                 # Check if the eraser was clicked
                 if eraser_rect.collidepoint(x, y):
-                    mode = WHITE
+                    mode = WHITE  # Set eraser mode
                     color_selected = True  # Prevent accidental drawing
 
-                if rect_rect.collidepoint(x, y):
-                    drawing_rect = True
-
-                # Start drawing only if the user didn't click a color or the eraser
+                # Start drawing only if a color or the eraser was not selected
                 if not color_selected:
-                    drawing = True
-                    last_pos = event.pos
+                    if drawing_circle:
+                        circle_center = event.pos
+                    elif drawing_rect:
+                        rect_position.topleft = event.pos
+                    else:
+                        drawing = True
+                        last_pos = event.pos
 
-            # Рисуем линию, если зажата кнопка и двигается мышка
-            if event.type == pygame.MOUSEMOTION and drawing:
+            if event.type == pygame.MOUSEMOTION:
                 if drawing and last_pos:
-                    pygame.draw.line(canvas, mode, last_pos, event.pos, radius)
-                last_pos = event.pos
+                    pygame.draw.line(canvas, mode, last_pos, event.pos, radius)  # Draw lines
+                    last_pos = event.pos
                 if drawing_rect:
                     end_pos = event.pos
-                    rect_position.x = min(start_pos[0], end_pos[0])
-                    rect_position.y = min(start_pos[1], end_pos[1])
                     rect_position.width = abs(start_pos[0] - end_pos[0])
                     rect_position.height = abs(start_pos[1] - end_pos[1])
-
+                if drawing_circle:
+                    end_pos = event.pos
+                    circle_radius = int(((end_pos[0] - circle_center[0])**2 + (end_pos[1] - circle_center[1])**2)**0.5)  # Calculate circle radius
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if drawing_rect:
-                    pygame.draw.rect(canvas, BLACK, rect_position, 2)  # Draw rectangle on canvas
+                    pygame.draw.rect(canvas, BLACK, rect_position, 2)  # Draw rectangle
                     drawing_rect = False
-                drawing = False
+                if drawing_circle:
+                    pygame.draw.circle(canvas, BLACK, circle_center, circle_radius, 2)  # Draw circle
+                    drawing_circle = False
+                drawing = False  # Stop freehand drawing
         
         clock.tick(100)
         pygame.display.flip()
 
+# Function to display the color selection palette
 def colors(screen, list_of_colors):
     pos = 30
     for i in range(len(list_of_colors)):
