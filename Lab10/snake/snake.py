@@ -103,7 +103,7 @@ while True:
             elif event.key == pygame.K_p:  # P for pausing
                 paused = True
                 font = pygame.font.SysFont('times new roman', 40)
-                pause_surface = font.render('Пауза. Нажмите P для продолжения.', True, white)
+                pause_surface = font.render('Paused. Press "P" to continue.', True, white)
                 pause_rect = pause_surface.get_rect(center=(window_x/2, window_y/2))
                 game_window.blit(pause_surface, pause_rect)
                 pygame.display.flip()
