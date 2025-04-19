@@ -6,9 +6,8 @@ def user_login():
 
     user = get_user(username)
     if user:
-        print(f"Welcome back, {username}! Current level: {user[2]}, Score: {user[1]}")
-        return username, user[1], user[2]
+        print(f"Welcome back, {username}! Your record: {user[1]} points, level {user[2]}")
     else:
         print(f"A new user has been created: {username}")
         add_user(username)
-        return username, 0, 1
+    return username, 0, 1
